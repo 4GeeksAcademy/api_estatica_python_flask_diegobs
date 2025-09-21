@@ -38,6 +38,32 @@ def handle_hello():
     return jsonify(response_body), 200
 
 
+# Para obtener uin miembro por ID
+@app.route('/members/<int:id>', methods=['GET'])
+def get_member(id):
+    member = jackson_family.get_member(id)
+    if member:
+        return jsonify(member), 200
+    return jsonify({"error": "El ID indicado no corresponde a ningún miembro"}), 404
+
+
+# Para agregar un nuevo miembro
+@app.route('/members/new', methods=['POST'])
+def add_member():
+    request_body = request.get_json()
+    if request_body:
+        jackson_family.add_member(request_body)
+        return jsonify({"msg" : "Se ha añadido el miembro correctamente"}), 200
+    else:
+        return jsonify({"error" : "Error al añadir el miembro"}), 400
+    
+    
+# Para eliminar un miembro existente
+@app.route('/members/delete/<int:id>', methods=['DELETE'])
+def delete_member(id):
+    jackson_family.delete_member(id)
+    return jsonify({"msg" : f"Se ha eliminado el miembro con el ID {id}"}), 200   ## Preguntar cómo añadir otro mensaje en caso de error (Siempre salta el mismo mensaje aunque no borre nada)
+
 
 # This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
