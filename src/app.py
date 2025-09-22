@@ -44,7 +44,7 @@ def get_member(id):
     member = jackson_family.get_member(id)
     if member:
         return jsonify(member), 200
-    return jsonify({"error": "El ID indicado no corresponde a ningún miembro"}), 404
+    return jsonify({"error": "El ID indicado no corresponde a ningún miembro"}), 400
 
 
 # Para agregar un nuevo miembro
@@ -54,15 +54,18 @@ def add_member():
     if request_body:
         jackson_family.add_member(request_body)
         return jsonify({"msg" : "Se ha añadido el miembro correctamente"}), 200
-    else:
-        return jsonify({"error" : "Error al añadir el miembro"}), 400
+    return jsonify({"error" : "Error al añadir el miembro"}), 400
     
     
 # Para eliminar un miembro existente
 @app.route('/members/delete/<int:id>', methods=['DELETE'])
 def delete_member(id):
-    jackson_family.delete_member(id)
-    return jsonify({"msg" : f"Se ha eliminado el miembro con el ID {id}"}), 200   ## Preguntar cómo añadir otro mensaje en caso de error (Siempre salta el mismo mensaje aunque no borre nada)
+    firstLength = len(jackson_family._members) ## Se almacena la longitud del array antes de que se borre un miembro
+    jackson_family.delete_member(id) ## Se borra el miembro
+    if firstLength  != len(jackson_family._members): ## Si la longitud del array original es distinta a la actual(es decir ha habido un cambio) muestra msg, si no muestra error
+        return jsonify({"msg" : f"Se ha eliminado el miembro con el ID {id}"}), 200
+    else :
+        return jsonify({"error" : "Error al borrar el miembro"}), 400
 
 
 # This only runs if `$ python src/app.py` is executed
